@@ -1,1 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>D3 Visualization</title>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <style>
+        .axis line, .axis path {
+            fill: none;
+            stroke: black;
+            shape-rendering: crispEdges;
+        }
 
+        .line {
+            fill: none;
+            stroke: steelblue;
+            stroke-width: 2px;
+        }
+    </style>
+</head>
+<body>
+    <svg width="960" height="500"></svg>
+    <script>
+        // Data
+        var data = [
+            {date: '14/09/2011', countTotal: 244},
+            {date: '31/01/2012', countTotal: 218},
+            {date: '05/02/2013', countTotal: 217},
+            {date: '30/01/2014', countTotal: 192},
+            {date: '04/02/2015', countTotal: 164},
+            {date: '31/01/2016', countTotal: 169},
+            {date: '30/01/2017', countTotal: 163},
+            {date: '31/01/2018', countTotal: 162},
+            {date: '30/01/2019', countTotal: 158},
+            {date: '01/02/2020', countTotal: 150},
+            {date: '31/01/2021', countTotal: 140},
+            {date: '03/02/2022', countTotal: 98},
+            {date: '08/02/2023', countTotal: 132}
+        ];
+
+        // Set the dimensions of the canvas / graph
+        var margin = {top: 30, right: 20, bottom: 30, left: 50},
+            width = 960 - margin.left - margin.right,
+            height = 500 - margin.top - margin.bottom;
+
+        // Parse the date / time
+        var parseDate = d3.timeParse("%d/%m/%Y");
+
+        // Set the ranges
+        var x = d3.scaleTime().range([0, width]);
+        var y = d3.scaleLinear().range([height, 0]);
+
+        // Define the line
+        var valueline = d3.line()
+            .x(function(d) { return x(d.date); })
+            .y(function(d) { return y(d.countTotal); });
+
+        // Adds the svg canvas
+        var svg = d3.select("body").append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        // Scale the range of the data
+        data.forEach(function(d) {
+            d.date = parseDate(d.date);
+        });
+
+        x.domain(d3.extent(data, function(d) { return d.date; }));
+        y.domain([0, d3.max(data, function(d) { return d.countTotal; })]);
+
+        // Add the valueline path.
+        svg.append("path")
+            .data([data])
+            .attr("class", "line")
+            .attr("d", valueline);
+
+        // Add the X Axis
+        svg.append("g")
+            .attr("transform", "translate(0," + height + ")")
+            .attr("class", "axis")
+            .call(d3.axisBottom(x));
+
+        // Add the Y Axis
+        svg.append("g")
+            .attr("class", "axis")
+            .call(d3.axisLeft(y));
+
+    </script>
+</body>
+</html>
